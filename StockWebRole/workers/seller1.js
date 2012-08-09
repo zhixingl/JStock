@@ -10,10 +10,10 @@ var azure = require('azure');
 
 module.exports = Seller1;
 
-function Seller1(){
-}
+function Seller1(){}
 
 Seller1.prototype.run = function(){
+
 
 	processAllBoughtItems();
 	//setTimeout(this.run, 30*60*1000);
@@ -53,7 +53,8 @@ function sendSell1Request(buyStockDao, sellStockDao, stock, url){
 	var today = new Date();
 	var buyDate = new Date(parseInt(stock.buyDate));
 	if(today.getDate() == buyDate.getDate())	{
-		util.log('We need T+1, but your stock is bought on ' + today);
+		util.log('Defend T+1 rule, return directly');
+		return;
 	}
 
 	http.get(url, function(res){

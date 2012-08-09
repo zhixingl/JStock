@@ -10,7 +10,7 @@ module.exports = function(){
 	var buyStockDao = new StockDao(tableName);
 
 	var stock = {};
-		stock.code = "sh600028";
+		stock.code = "sz002323";
 		stock.name = "PFYH";
 		stock.buyDate = Date.now();
 		stock.buyPrice = 7.68;

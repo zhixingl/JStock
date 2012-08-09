@@ -10,6 +10,8 @@ var StockDao = require('./model/stockdao.js');
 var Buyer = require('./workers/buyer');
 var Seller1 = require('./workers/seller1') ;
 var Seller2 = require('./workers/seller2');
+var jutils = require("./jutils.js");
+
 // var keepalive = require('./workers/keepalive.js');
 
 //var urlTemplate = 'http://money.finance.sina.com.cn/quotes_service/api/xml.php/CN_MarketData.getKLineData?symbol=%s&scale=30&datalen=144';
@@ -29,20 +31,35 @@ module.exports.start = function(){
 	// });
 
 	var buyer = new Buyer();
-	buyer.run();
-
 	var seller1 = new Seller1();
-	seller1.run();
-	// keepalive.start();
-	// keepalive.check();
-
 	var seller2 = new Seller2();
-	seller2.run();
 
-	setInterval(buyer.run, 15*60*1000);
-	setInterval(seller1.run, 10*60*1000);
-	setInterval(seller2.run, 10*60*1000);
+
+	runWorkers(buyer.run, seller1.run, seller2.run);
+
+	// setInterval(buyer.run, 15*60*1000);
+	// setInterval(seller1.run, 10*60*1000);
+	// setInterval(seller2.run, 10*60*1000);
+
+	// setInterval(runWorkers, 5*1000);
+	setInterval(runWorkers, 15*60*1000);
+
+	function runWorkers(){
+		if(!jutils.isInTradeTime(new Date())){
+			var length = arguments.length;
+			for(var i = 0; i < length; i ++){
+				arguments[i].call();
+			}
+			
+		}else{
+			util.log('It is not in trade time, skip this time!');
+			// return;
+		}
+		
+	}
 }
+
+
 
 /*
 function Buyer(){

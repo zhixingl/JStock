@@ -25,7 +25,7 @@ app.configure('development', function(){
 });
 
 app.configure('production', function(){
-  app.use(express.errorHandler());
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
 // Routes
@@ -39,8 +39,12 @@ var port = process.env.port || 3000;
 app.listen(port);
 
 app.on('listening', function(err){
-	
 	require('./workers/pinger').start(app, 3*60*1000);
+  // require('./workers/pinger').start(app, 30*1000);
+});
+
+app.on('error', function(err){
+  console.log('app error: ' + err);
 });
 
 console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);

@@ -13,6 +13,7 @@ module.exports = Seller2;
 function Seller2(){}
 
 Seller2.prototype.run = function(){
+
 	processAllSell1Items();
 	//setTimeout(this.run, 30*60*1000);
 

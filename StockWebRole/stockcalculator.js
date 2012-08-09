@@ -257,6 +257,7 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 		volume = 0,				//当天成交量
 		prevolume = 0,		//前一日成交量
 		purevolume = 0,		//最近20日净成交量
+		closeDate = null,	//收盘日期
 		ma5 = 0,					//5日线价格
 		ma12 = 0,					//12日线价格
 		ma50 = 0,					//50日线价格
@@ -272,6 +273,7 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 	growth = (parseFloat(todayItem.close) - parseFloat(preItem.close)) / parseFloat(preItem.close);
 	volume = parseInt(todayItem.volume);
 	prevolume = parseInt(preItem.volume);		
+	closeDate = new Date(todayItem.day + '+08:00');
 	
 	var item;
 	for(var i = length-1; i >= length - 20; i--){
@@ -295,6 +297,8 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 	var min = Math.min(ma5, ma12, ma50, ma89, ma144);
 	bandwidth = max - min;
 	maxBandwidth = max;
+
+
 	return {
 		bandwidth: bandwidth,
 		close: close,
@@ -305,6 +309,7 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 		volume: volume,
 		prevolume: prevolume,
 		purevolume: purevolume,
+		closeDate: closeDate,
 		ma5: ma5,
 		ma12: ma12,
 		ma50: ma50,

@@ -6,7 +6,7 @@ module.exports.start = function(app, interval){
 	setInterval(function(){
 		var options = {
 		  host: 'jstock.cloudapp.net',
-		  port: app.address().port || 80,
+		  // port: app.address().port || 80,
 		  path: '/ping',
 		  method: 'GET'
 		};
@@ -18,7 +18,7 @@ module.exports.start = function(app, interval){
 		});
 
 		util.log(req._headers.host);
-		util.log(req.path);
+		// util.log(req.path);
 
 		req.on('error', function(e) {
 		  util.log('problem with ping request: ' + e.message);

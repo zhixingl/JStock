@@ -16,7 +16,7 @@ window.onload=function() {
 
     //hide two tab contents we don't need
    	var pages = tabcon.getElementsByTagName("div");
-    for (var i = 1; i < pages.length; i++) {
+    for (var i = 0; i < pages.length; i++) {
      	 pages.item(i).style.display="none";
     };
 
@@ -26,10 +26,17 @@ window.onload=function() {
       tabs[i].onclick=displayPage;
     }
 
+    var evt = document.createEvent("MouseEvents");
+    evt.initMouseEvent('click',true, true, window, 1, 0, 0, 0, 0,
+        false, false, false, false, 0, null);
+
+    tabs[0].dispatchEvent(evt);
+
     //Initialize the data for the stocks
     initializeData();
 }
 
+var myTimeInterval = 0;
 // on click of one of tabs
 function displayPage() {
     var current = this.parentNode.getAttribute("data-current");
@@ -42,27 +49,42 @@ function displayPage() {
     this.setAttribute("class","tabActiveHeader");
     document.getElementById("tabpage_" + ident).style.display="block";
     this.parentNode.setAttribute("data-current",ident);
+
+    var functions = [retrieveBoughtData, retrieveSoldData1, retrieveSoldData2];
+    var i = parseInt(ident) - 1;
+    if(myTimeInterval){
+        clearInterval(myTimeInterval);
+    }
+
+    functions[i].call();
+    myTimeInterval = setInterval(functions[i], 30000);
+
 }
 
 function initializeData(){
-    if(XMLHttpRequest.DONE == undefined){
-        XMLHttpRequest.prototype.DONE = 4;
-    }
+    // if(XMLHttpRequest.DONE == undefined){
+    //     XMLHttpRequest.prototype.DONE = 4;
+    // }
 
-    retrieveBoughtData();
-    retrieveSoldData1();
-    retrieveSoldData2();
-    setTimeout(initializeData, 30000);
+    // retrieveBoughtData();
+    // retrieveSoldData1();
+    // retrieveSoldData2();
+    // setTimeout(initializeData, 30000);
 }
 
 function retrieveBoughtData(){
     var tblBought = document.getElementById("tblBought");
-
+    var loader = document.getElementById("ajaxloader1");
     var xhr = new XMLHttpRequest();
+
+    var tBody = tblBought.tBodies[0];
+
+    clearTbody(tBody);
+
     xhr.open("GET", "./retrieveBought", true);
    // xhr.responseType = "json";
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == xhr.DONE) {
+      if (xhr.readyState == 4 && xhr.status == 200) {
         var jsonData = xhr.response;
         if(jsonData == undefined){
             jsonData = xhr.responseText;
@@ -73,9 +95,9 @@ function retrieveBoughtData(){
         var item;
         var row;
         var cell;
-        var tBody = tblBought.tBodies[0];
+        
         //tBody.innerHTML = "";
-        clearTbody(tBody);
+        // clearTbody(tBody);
         for(var i = 0; i < jsonArray.length; i ++){
 
             item = jsonArray[i];
@@ -115,7 +137,7 @@ function retrieveBoughtData(){
             row.insertCell(-1).innerText = item.buyPrice;
             row.insertCell(-1).innerText = item.buyVolume;
             row.insertCell(-1).innerText = item.currPrice;
-            row.insertCell(-1).innerText = ((item.currPrice - item.buyPrice) * 100 / item.buyPrice).toFixed(2) + "%";
+            row.insertCell(-1).innerText = ((item.currPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
 
             //Javascript code to insert the table contents - finish
 
@@ -139,22 +161,27 @@ function retrieveBoughtData(){
             //content +="</tr>\n";
         }
 
-        
+        loader.style.display = "none"; 
       }
     }
     xhr.setRequestHeader("Cache-Control", "no-cache");
     xhr.send();
+    loader.style.display = "block";
     
 }
 
 function retrieveSoldData1(){
     var tblSold1 = document.getElementById("tblSold1");
+    var loader = document.getElementById("ajaxloader1");
+
+    var tBody = tblSold1.tBodies[0];
+    clearTbody(tBody);
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "./retrieveSold1", true);
    // xhr.responseType = "json";
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == xhr.DONE) {
+      if (xhr.readyState == 4 && xhr.status == 200) {
         var jsonData = xhr.response;
         if(jsonData == undefined){
             jsonData = xhr.responseText;
@@ -164,7 +191,7 @@ function retrieveSoldData1(){
         var content = "";
         var item;
         var row, cell;
-        var tBody = tblSold1.tBodies[0];
+       
         //tBody.innerHTML = "";
         clearTbody(tBody);
         for(var i = 0; i < jsonArray.length; i ++){
@@ -174,27 +201,6 @@ function retrieveSoldData1(){
            // content += "<tr>";
             row =  tBody.insertRow(-1);
 
-            /*content = "";
-            content += "<td class='stockcode'>" 
-                        + item.code 
-                        + "</td>";
-            content += "<td>" + item.name + "</td>";
-            //content += "<td>" + item.buyDate + "</td>";
-            content += "<td title='" + new Date(parseInt(item.buyDate)).toLocaleString() + "''>" 
-                    + new Date(parseInt(item.buyDate)).format('mm/dd/yyyy') + "</td>";
-            content += "<td>" + new Date(parseInt(item.buyDate)).format('HH:MM:ss') + "</td>";
-            content += "<td>" + item.buyPrice + "</td>";
-            content += "<td>" + item.buyVolume + "</td>";
-            
-            content += "<td title='" + new Date(parseInt(item.sellDate)).toLocaleString() + "''>" 
-                    + new Date(parseInt(item.sellDate)).format('mm/dd/yyyy') + "</td>";
-            content += "<td>" + new Date(parseInt(item.sellDate)).format('HH:MM:ss') + "</td>";
-            content += "<td>" + item.sellPrice + "</td>";
-            content += "<td>" + item.sellVolume + "</td>";
-            content += "<td>" + item.currPrice + "</td>";
-            content += "<td>" + ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice).toFixed(2) + "%</td>";
-            
-            row.innerHTML = content;*/
 
             cell = row.insertCell(-1);
             cell.setAttribute("class", "stockcode");
@@ -219,7 +225,7 @@ function retrieveSoldData1(){
             row.insertCell(-1).innerText = item.sellVolume ;
 
             row.insertCell(-1).innerText = item.currPrice;
-            row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice).toFixed(2) + "%";
+            row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
 
             row.firstChild.setAttribute("code", item.code);
 
@@ -232,21 +238,27 @@ function retrieveSoldData1(){
             //content +="</tr>\n";
         }
 
-        
+      loader.style.display = "none"; 
       }
     }
+    xhr.setRequestHeader("Cache-Control", "no-cache");
     xhr.send();
+    loader.style.display = "block";
+
 }
 
 
 function retrieveSoldData2(){
-    var tblSold1 = document.getElementById("tblSold2");
+    var tblSold2 = document.getElementById("tblSold2");
+    var loader = document.getElementById("ajaxloader1");
+    var tBody = tblSold2.tBodies[0];
+    clearTbody(tBody);
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", "./retrieveSold2", true);
    // xhr.responseType = "json";
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == xhr.DONE) {
+      if (xhr.readyState == 4 && xhr.status == 200) {
         var jsonData = xhr.response;
         if(jsonData == undefined){
             jsonData = xhr.responseText;
@@ -256,7 +268,7 @@ function retrieveSoldData2(){
         var content = "";
         var item;
         var row;
-        var tBody = tblSold1.tBodies[0];
+        
         //tBody.innerHTML = "";
         clearTbody(tBody);
         for(var i = 0; i < jsonArray.length; i ++){
@@ -266,27 +278,6 @@ function retrieveSoldData2(){
            // content += "<tr>";
             row =  tBody.insertRow(-1);
 
-            /*content = "";
-            content += "<td class='stockcode'>" 
-                        + item.code 
-                        + "</td>";
-            content += "<td>" + item.name + "</td>";
-            
-            content += "<td title='" + new Date(parseInt(item.buyDate)).toLocaleString() + "''>" 
-                    + new Date(parseInt(item.buyDate)).format('mm/dd/yyyy') + "</td>";
-            content += "<td>" + new Date(parseInt(item.buyDate)).format('HH:MM:ss') + "</td>";
-            content += "<td>" + item.buyPrice + "</td>";
-            content += "<td>" + item.buyVolume + "</td>";
-            
-            content += "<td title='" + new Date(parseInt(item.sellDate)).toLocaleString() + "''>" 
-                    + new Date(parseInt(item.sellDate)).format('mm/dd/yyyy') + "</td>";
-            content += "<td>" + new Date(parseInt(item.sellDate)).format('HH:MM:ss') + "</td>";
-            content += "<td>" + item.sellPrice + "</td>";
-            content += "<td>" + item.sellVolume + "</td>";
-            content += "<td>" + item.currPrice + "</td>";
-            content += "<td>" + ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice).toFixed(2) + "%</td>";
-            
-            row.innerHTML = content;*/
             cell = row.insertCell(-1);
             cell.setAttribute("class", "stockcode");
             cell.innerText = item.code;
@@ -310,7 +301,7 @@ function retrieveSoldData2(){
             row.insertCell(-1).innerText = item.sellVolume ;
 
             row.insertCell(-1).innerText = item.currPrice;
-            row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice).toFixed(2) + "%";
+            row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
 
 
             row.firstChild.setAttribute("code", item.code);
@@ -324,10 +315,12 @@ function retrieveSoldData2(){
             //content +="</tr>\n";
         }
 
-        
+      loader.style.display = "none"; 
       }
     }
+    xhr.setRequestHeader("Cache-Control", "no-cache");
     xhr.send();
+    loader.style.display = "block";
 }
 
 function clearTbody(tBody){

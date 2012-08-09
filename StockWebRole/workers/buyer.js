@@ -3,10 +3,11 @@ var http = require('http'),
 	util = require('util'),
     eyes = require('eyes'),
     xml2js = require('xml2js');
+var azure = require('azure');   
 
 var StockCalculator = require('../stockcalculator.js');
 var StockDao = require('../model/stockdao.js');
-var azure = require('azure');   
+
 
 module.exports = Buyer;
 
@@ -17,6 +18,11 @@ function Buyer(){
 Buyer.prototype.run = function(){
 	//Get the data from Sina.com.cn, and send the result to the Parser
 	//var urlTemplate = 'http://money.finance.sina.com.cn/quotes_service/api/xml.php/CN_MarketData.getKLineData?symbol=sh600000&scale=30&datalen=144';
+
+	// if(!jutils.isInTradeTime(new Date())){
+	// 	util.log('[Buyer]It is not in trade time: ' + new Date());
+	// 	return;
+	// }
 
 	//var stockCode = 'sh600000';
 	var urlTemplate = 'http://money.finance.sina.com.cn/quotes_service/api/xml.php/CN_MarketData.getKLineData?symbol=%s&scale=30&datalen=196';
@@ -49,8 +55,9 @@ Buyer.prototype.run = function(){
 	util.log('Buyer is running....');
 }
 
+Buyer.prototype.sendBuyOneRequest = sendBuyRequest;
 
-Buyer.prototype.sendBuyOneRequest = function(code, url, callback){
+/*Buyer.prototype.sendBuyOneRequest = function(code, url, callback){
 	//util.log('sendBuyRequest: ' + code);
 	http.get(url, function(res) {	 
 		 if(res.statusCode == 200){
@@ -82,8 +89,10 @@ Buyer.prototype.sendBuyOneRequest = function(code, url, callback){
 												&& (band.close > band.open)
 												&& (band.close > band.maxBandwidth)
 												&& ((band.close - band.maxBandwidth) / band.close < 0.02)
-												&& (band.growth < 0.02);
+												&& (band.growth < 0.02)
+												&& ((Math.min(band.ma5, band.ma12) - Math.max(band.ma50, ma89, ma144)) * 100 / band.close < 0.007);
 								var condition2 = (band.volume / band.prevolume) >= 1.4;
+
 								// var condition3 = band.purevolume > 0;
 								var condition3 = true;
 								//eyes.inspect([condition1, condition2, condition3]);
@@ -107,9 +116,9 @@ Buyer.prototype.sendBuyOneRequest = function(code, url, callback){
 	}).on('error', function(err){
 		util.log('Buyer: ' + err.message);
 	});
-}
+}*/
 
-function sendBuyRequest(code, url){
+function sendBuyRequest(code, url, callback){
 	// util.log('sendBuyRequest: ' + code);
 	http.get(url, function(res) {	 
 		 if(res.statusCode == 200){
@@ -129,7 +138,18 @@ function sendBuyRequest(code, url){
 								var band = calculator.getBandWidth();
 								band.stockId = code;								
 								
-								
+								//this is for debug purpose
+								if('function' == typeof callback){
+									callback(band);
+								}
+
+								//That means this stock is stopped today
+								if(band.closeDate.getDate() != new Date().getDate()){
+									util.log('The stock of ' + code + ' is closed today!');
+									return;
+								}
+
+
 
 								//If meets the below 3 conditions, buy it
 								var condition1 = (band.ma50 > band.ma144)

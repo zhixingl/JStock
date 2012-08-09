@@ -19,6 +19,7 @@ console.log(day.toLocaleString());
 */
 
 var tester = require('./tests/testbuystockdao.js')();
+tester.removeItem();
 tester.getAllItems();
 
 // tester.deleteAll(function(err){

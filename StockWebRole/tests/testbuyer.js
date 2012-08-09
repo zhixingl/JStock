@@ -15,11 +15,11 @@ var buyer = new Buyer();
 var code = 'sh600591';
 var url = util.format(urlTemplate, code);
 
-buyer.sendBuyOneRequest(code, url, function(band){
-	console.log(band);
-});
+// buyer.sendBuyOneRequest(code, url, function(band){
+// 	console.log(band);
+// });
 
 
- // buyer.run();
+ buyer.run();
 
  // setInterval(buyer.run, 5*60*1000);
