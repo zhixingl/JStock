@@ -35,20 +35,24 @@ module.exports.start = function(){
 	var seller2 = new Seller2();
 
 
-	runWorkers(buyer.run, seller1.run, seller2.run);
+	// runWorkers(buyer.run, seller1.run, seller2.run);
 
 	// setInterval(buyer.run, 15*60*1000);
 	// setInterval(seller1.run, 10*60*1000);
 	// setInterval(seller2.run, 10*60*1000);
 
 	// setInterval(runWorkers, 5*1000);
+	var functions = [buyer.run, seller1.run, seller2.run];
+	runWorkers();
 	setInterval(runWorkers, 15*60*1000);
 
 	function runWorkers(){
-		if(!jutils.isInTradeTime(new Date())){
-			var length = arguments.length;
+		if(jutils.isInTradeTime(new Date())){
+			var length = functions.length;
+			// console.log('runWorks length: ' + length);
 			for(var i = 0; i < length; i ++){
-				arguments[i].call();
+				// console.log(functions[i]);
+				functions[i].call();
 			}
 			
 		}else{

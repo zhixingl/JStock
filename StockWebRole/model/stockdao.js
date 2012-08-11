@@ -43,6 +43,7 @@ StockDao.prototype = {
     * @return {undefined}
     */
     getAllItems: function (callback) {
+      util.log('[StockDao]: getAllItems');
       var self = this;
       var query = azure.TableQuery
           .select()

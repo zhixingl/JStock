@@ -1,4 +1,5 @@
 var StockDao = require('../model/stockdao.js');
+var BuyStockDao = require('../model/buystockdao.js');
 var azure = require('azure');   
 var async = require('async');
 var eyes = require('eyes');
@@ -24,11 +25,43 @@ module.exports = function(app)
           // , partitionKey = 'StockPartition'
           // , accountName = 'zxnodestorage'
           // , accountKey = 'g8VByq/98xY0jibr4RVHvN4/4Czxh1tVpIH7OnP9h9KixC4f62SltDGk6OFq8AXuDSGDMOFEXZs3ZWAi98e2Xw==';
+        var propNames = ['id','link','updated','etag'];
 
-        var buyStockDao = new StockDao(tableName);
+        var buyStockDao = new BuyStockDao(tableName);
 
 
         buyStockDao.getAllItems(function(error, entities){
+            //eyes.inspect(error);
+            //eyes.inspect(entities);
+            //console.log("the length = " + entities.length);
+            if(error || entities == undefined || entities.length == 0){
+                //res.error(error.code);
+                res.json({});
+            }else{
+                for(var i = 0; i < entities.length; i ++){
+                    for(var j = 0; j < propNames.length; j++){
+                        delete entities[i][propNames[j]];
+                    }
+                }
+                res.setHeader('Cache-Control', 'No-Cache');
+                res.json(entities);
+            }            
+        });
+        //console.log(myArray);
+        //res.json(myArray);
+    });
+
+
+    app.post('/retrieveExtraBuyData', function(req, res){
+        //console.log('/retrieveBought');
+        var tableName = 'BuyStocks';
+        // console.log(req.body);
+        var entities = req.body;
+
+        var buyStockDao = new BuyStockDao(tableName);
+
+
+        buyStockDao.retrieveExtraData(entities, function(error){
             //eyes.inspect(error);
             //eyes.inspect(entities);
             //console.log("the length = " + entities.length);
@@ -36,44 +69,9 @@ module.exports = function(app)
                 //res.error(error.code);
                 res.json({});
             }else{
-                //res.json(entities);
-                async.forEach(entities
-                    , function(entity, callback){
-                        entity.name = entity.code;
-                        //now get the current price
-                        var realUrl = 'http://hq.sinajs.cn/?list=' + entity.code;
-                        http.get(realUrl, function(response) {
-                           // eyes.inspect(res);
-                            if(response.statusCode == 200){
-                                var resData = '';
-                                response.on('data', function (chunk) {
-                                    resData += chunk;
-                                });
-                            
-                                response.on('end', function(){
-                                    eval(resData);
-                                    var realData = eval('hq_str_' + entity.code).split(',');
-                                    entity.currPrice = parseFloat(realData[3]).toFixed(2);
-                                    //console.log( entity.currPrice);
-                                    callback(null);
-                                });
 
-                                response.on('error', function(err){
-                                    callback(err);
-                                });
-                            }
-                        });
-                    }
-                    , function(error){
-                        //console.log('My callback......');
-                        if(error){
-                            console.log(error);
-                        }else{
-                            res.setHeader('Cache-Control', 'No-Cache');
-                            res.json(entities);
-                        }
-                    }
-                );
+                res.setHeader('Cache-Control', 'No-Cache');
+                res.json(entities);
             }            
         });
         //console.log(myArray);

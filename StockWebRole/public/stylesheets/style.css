@@ -18,9 +18,15 @@ table{
     /*background-color: #C9C9C9;*/
 }
 
-thead{
-    background-color: #C9C9C9;
+thead>tr>td{
+    /*background-color: #C9C9C9;*/
+    text-align: center;
 }
+
+/*tbody>tr:nth-child(even)
+{
+	background:#000033;
+}*/
 
 td{
     width: 80px;    
@@ -146,6 +152,30 @@ td{
 	display: none;
 	position: absolute;
 	left: 50%;
+	top: 50%;
+
+	width: 150px;
+	height: 150px;
+
+	margin: 0 0 0 -75px;
+	border: 15px solid #999;
+	border-right-color: transparent;
+	border-radius: 50%;
+	box-shadow: 0 0 25px 5px #0000ff;
+	-webkit-animation: spin 1s linear infinite;
+	-moz-animation: spin 1s linear infinite;
+	-ms-animation: spin 1s linear infinite;
+	-o-animation: spin 1s linear infinite;
+	animation: spin 1s linear infinite;
+
+}  
+/*this is old style
+
+#ajaxloader1  
+{  
+	display: none;
+	position: absolute;
+	left: 50%;
 	top: 15%;
 
 	width: 20px;
@@ -163,6 +193,7 @@ td{
 	animation: spin 1s linear infinite;
 
 }  
+*/
 
 @-webkit-keyframes spin
 {

@@ -33,7 +33,7 @@ function processAllBoughtItems(){
 	var sellStockDao = new StockDao(sellTableName1);
 
 	buyStockDao.getAllItems(function(error, entities){
-		console.log('Start get all items ' + entities.length);
+		// console.log('Start get all items ' + entities.length);
 		if(error){
 			eyes.inspect(error);
 		}else{
@@ -49,7 +49,7 @@ function processAllBoughtItems(){
 
 function sendSell1Request(buyStockDao, sellStockDao, stock, url){
 	//util.log(url);
-	util.log('sendSell1Request: ' + stock.code);
+	// util.log('sendSell1Request: ' + stock.code);
 	var today = new Date();
 	var buyDate = new Date(parseInt(stock.buyDate));
 	if(today.getDate() == buyDate.getDate())	{
@@ -69,14 +69,14 @@ function sendSell1Request(buyStockDao, sellStockDao, stock, url){
 					parser.on('end', function(result) {					
 						var items = result.item;
 						//eyes.inspect(items);
-						if(items != undefined && items.length == 25){
+						if(items != undefined && items.length > 0){
 							sellStockDao.getRealData(stock.code, function(err, realData){
 								if(err){
 									util.log(err);
 								}else{
 
 									var realPrice = parseFloat(realData[3]).toFixed(2);
-									util.log('Seller1 realPrice: ' + realPrice);
+									// util.log('Seller1 realPrice: ' + realPrice);
 									if(realPrice > 0.5){ //The stock is in trading
 										var calculator = new StockCalculator(items);
 										var ema5 = calculator.EMA(5);
@@ -84,7 +84,7 @@ function sendSell1Request(buyStockDao, sellStockDao, stock, url){
 										var sell1 = calculator.SELL1();
 										var sell2 = calculator.SELL2();
 
-										util.log('realPrice = ' + realPrice + ', ema5= ' + ema5);
+										util.log(stock.code + ': realPrice = ' + realPrice + ', ema5= ' + ema5);
 										util.log('sell1 = ' + sell1 + ', sell2 = ' + sell2 + ', real<ema5: ' + (realPrice < ema5));
 										if(
 											(sell1 == 50|| sell2 == 50) && 

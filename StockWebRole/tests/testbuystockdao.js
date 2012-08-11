@@ -1,16 +1,16 @@
 var eyes = require('eyes');
 var azure = require('azure');
-var StockDao = require('../model/buystockdao.js');
+var BuyStockDao = require('../model/buystockdao.js');
 
 module.exports = function(){
 
 	var tableName = 'BuyStocks';
 	
 
-	var buyStockDao = new StockDao(tableName);
+	var buyStockDao = new BuyStockDao(tableName);
 
 	var stock = {};
-		stock.code = "sz002323";
+		stock.code = "sz000712";
 		stock.name = "PFYH";
 		stock.buyDate = Date.now();
 		stock.buyPrice = 7.68;
@@ -31,7 +31,7 @@ module.exports = function(){
 			//eyes.inspect(entities);
 			entities.forEach(function(item){
 				
-				console.log(item.code + ', ' + new Date(parseInt(item.buyDate)).toLocaleString());
+				console.log(item.code + ', ' + item.tunePrice);
 			});
 		})
 	};

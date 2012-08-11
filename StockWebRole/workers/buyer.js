@@ -7,7 +7,7 @@ var azure = require('azure');
 
 var StockCalculator = require('../stockcalculator.js');
 var StockDao = require('../model/stockdao.js');
-
+var jutils = require('../jutils.js');
 
 module.exports = Buyer;
 
@@ -144,7 +144,8 @@ function sendBuyRequest(code, url, callback){
 								}
 
 								//That means this stock is stopped today
-								if(band.closeDate.getDate() != new Date().getDate()){
+				
+								if(jutils.isStockClosed(band.closeDate)){
 									util.log('The stock of ' + code + ' is closed today!');
 									return;
 								}
@@ -152,13 +153,16 @@ function sendBuyRequest(code, url, callback){
 
 
 								//If meets the below 3 conditions, buy it
-								var condition1 = (band.ma50 > band.ma144)
-												&&(band.bandwidth < (band.close - band.preLow))
+								var condition1 = (band.ma50 > band.ma144)	
+												&& (band.bandwidth < (band.close - band.preLow))
 												&& (band.bandwidth / band.close <= 0.02)
 												&& (band.close > band.open)
 												&& (band.close > band.maxBandwidth)
 												&& ((band.close - band.maxBandwidth) / band.close < 0.02)
-												&& (band.growth < 0.02);
+												&& (band.growth < 0.02)
+												&& ((Math.min(band.ma5, band.ma12) - Math.max(band.ma50, band.ma89, band.ma144)) / band.close < 0.007)
+												&& ((band.high - band.close) < (band.close - band.open))
+												&& (band.close - band.low) > (band.preClose - band.preLow);
 								var condition2 = (band.volume / band.prevolume) >= 1.4;
 								// var condition3 = band.purevolume > 0;
 								var condition3 = true;

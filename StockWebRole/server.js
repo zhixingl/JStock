@@ -35,6 +35,7 @@ routes(app);
 
 //Start the stock worker
 require('./stockworker.js').start();
+
 var port = process.env.port || 3000;
 app.listen(port);
 

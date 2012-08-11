@@ -64,7 +64,7 @@ function sendSell2Request(buyStockDao, sellStockDao, stock, url){
 					parser.on('end', function(result) {					
 						var items = result.item;
 						//eyes.inspect(items);
-						if(items != undefined && items.length == 12){
+						if(items != undefined && items.length > 12){
 
 							//util.log(stock.code + ': ema12 = ' + ema12);
 							sellStockDao.getRealData(stock.code, function(err, realData){

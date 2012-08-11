@@ -32,11 +32,10 @@ window.onload=function() {
 
     tabs[0].dispatchEvent(evt);
 
-    //Initialize the data for the stocks
-    initializeData();
 }
 
 var myTimeInterval = 0;
+var xhr;
 // on click of one of tabs
 function displayPage() {
     var current = this.parentNode.getAttribute("data-current");
@@ -47,7 +46,7 @@ function displayPage() {
     var ident = this.id.split("_")[1];
     //add class of activetabheader to new active tab and show contents
     this.setAttribute("class","tabActiveHeader");
-    document.getElementById("tabpage_" + ident).style.display="block";
+    document.getElementById("tabpage_" + ident).style.display="inline";
     this.parentNode.setAttribute("data-current",ident);
 
     var functions = [retrieveBoughtData, retrieveSoldData1, retrieveSoldData2];
@@ -56,35 +55,31 @@ function displayPage() {
         clearInterval(myTimeInterval);
     }
 
+    if(xhr){
+        try{xhr.abort();}catch(e){}
+    }
+
     functions[i].call();
-    myTimeInterval = setInterval(functions[i], 30000);
+    myTimeInterval = setInterval(functions[i], 60000);
 
 }
 
-function initializeData(){
-    // if(XMLHttpRequest.DONE == undefined){
-    //     XMLHttpRequest.prototype.DONE = 4;
-    // }
-
-    // retrieveBoughtData();
-    // retrieveSoldData1();
-    // retrieveSoldData2();
-    // setTimeout(initializeData, 30000);
-}
-
+var loader = document.getElementById("ajaxloader1");
 function retrieveBoughtData(){
     var tblBought = document.getElementById("tblBought");
-    var loader = document.getElementById("ajaxloader1");
-    var xhr = new XMLHttpRequest();
+    
+    xhr = new XMLHttpRequest();
 
-    var tBody = tblBought.tBodies[0];
-
-    clearTbody(tBody);
-
+    
     xhr.open("GET", "./retrieveBought", true);
    // xhr.responseType = "json";
     xhr.onreadystatechange = function () {
-      if (xhr.readyState == 4 && xhr.status == 200) {
+      if (xhr.readyState == 4 ) {
+        
+        if(xhr.status != 200){
+            console.log('some error happens ' + xhr.status);
+            return;
+        }
         var jsonData = xhr.response;
         if(jsonData == undefined){
             jsonData = xhr.responseText;
@@ -98,12 +93,20 @@ function retrieveBoughtData(){
         
         //tBody.innerHTML = "";
         // clearTbody(tBody);
+        var tBody = tblBought.tBodies[0];
+        if(jsonArray.length > 0){
+            clearTbody(tBody);
+        }
+
+        var codeArray = new Array();
+
         for(var i = 0; i < jsonArray.length; i ++){
 
             item = jsonArray[i];
            // content += "<tr>";
             row =  tBody.insertRow(-1);
-
+            row.id = "b_" + item.code;
+            codeArray.push({code:item.code, buyPrice:item.buyPrice});
             
 /*            content = "";
             content += "<td class='stockcode'>" 
@@ -126,7 +129,7 @@ function retrieveBoughtData(){
             cell.setAttribute("class", "stockcode");
             cell.innerText = item.code;
 
-            row.insertCell(-1).innerText = item.name;
+            row.insertCell(-1).innerText = item.code;
 
             cell = row.insertCell(-1);
             cell.setAttribute("title", new Date(parseInt(item.buyDate)).toLocaleString());
@@ -136,9 +139,19 @@ function retrieveBoughtData(){
 
             row.insertCell(-1).innerText = item.buyPrice;
             row.insertCell(-1).innerText = item.buyVolume;
-            row.insertCell(-1).innerText = item.currPrice;
-            row.insertCell(-1).innerText = ((item.currPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
+            row.style.background = "#ff9999";
 
+/*            row.insertCell(-1).innerText = item.currPrice;
+            row.insertCell(-1).innerText = item.tunePrice;
+            var profit = ((item.currPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2);
+            row.insertCell(-1).innerText = profit + "%";
+
+            if(profit > 0){
+                row.style.background = "#ff9999";
+            }else{
+                row.style.background = "#99FF99";
+            }
+            */
             //Javascript code to insert the table contents - finish
 
             row.firstChild.setAttribute("code", item.code);
@@ -161,7 +174,12 @@ function retrieveBoughtData(){
             //content +="</tr>\n";
         }
 
-        loader.style.display = "none"; 
+//        alert(JSON.stringify(codeArray));
+        if(codeArray.length > 0){
+            retrieveExtraBuyData(tBody, codeArray);
+        }
+
+        
       }
     }
     xhr.setRequestHeader("Cache-Control", "no-cache");
@@ -170,14 +188,53 @@ function retrieveBoughtData(){
     
 }
 
+function retrieveExtraBuyData(tBody, codeArray){
+    var xhr1 = new XMLHttpRequest();
+    
+    xhr1.open("POST", "/retrieveExtraBuyData");
+    xhr1.setRequestHeader('Content-Type', 'application/json');
+    xhr1.setRequestHeader("Cache-Control", "no-cache");
+    xhr1.onreadystatechange = function () {
+        if (xhr1.readyState == 4){
+            loader.style.display = "none"; 
+            if (xhr1.status != 200) {
+                console.error('wrong status code: ' + xhr1.status);
+            }
+            var jsonData = xhr1.response;
+            if(jsonData == undefined){
+                jsonData = xhr1.responseText;
+            }
+            var jsonArray = JSON.parse(jsonData);
+            var rows = tBody.rows;
+            var item;
+            var row;
+            for(var i = 0; i < jsonArray.length; i ++){
+                item = jsonArray[i];
+                row = rows[i];
+                row.insertCell(-1).innerText = item.currPrice;
+                row.insertCell(-1).innerText = item.tunePrice;
+                var profit = ((item.currPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2);
+                row.insertCell(-1).innerText = profit + "%";
+
+                if(profit > 0){
+                    row.style.background = "#ff9999";
+                }else{
+                    row.style.background = "#99FF99";
+                }
+                
+            }
+
+        }
+    }
+    xhr1.send(JSON.stringify(codeArray));
+    // xhr.timeout=60000;
+}
+
 function retrieveSoldData1(){
     var tblSold1 = document.getElementById("tblSold1");
     var loader = document.getElementById("ajaxloader1");
 
-    var tBody = tblSold1.tBodies[0];
-    clearTbody(tBody);
-
-    var xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.open("GET", "./retrieveSold1", true);
    // xhr.responseType = "json";
     xhr.onreadystatechange = function () {
@@ -193,13 +250,18 @@ function retrieveSoldData1(){
         var row, cell;
        
         //tBody.innerHTML = "";
-        clearTbody(tBody);
+
+        var tBody = tblSold1.tBodies[0];
+        if(jsonArray.length > 0){
+            clearTbody(tBody);
+        }
         for(var i = 0; i < jsonArray.length; i ++){
         //var content = "<tr><td>sh600000</td><td>浦发银行</td><td>2012/07/31</td><td>6.78</td><td>1000</td><td>6.89</td><td>3.0%</td></tr>";
         //content += content;
             item = jsonArray[i];
            // content += "<tr>";
             row =  tBody.insertRow(-1);
+            // row.id = item
 
 
             cell = row.insertCell(-1);
@@ -252,9 +314,8 @@ function retrieveSoldData2(){
     var tblSold2 = document.getElementById("tblSold2");
     var loader = document.getElementById("ajaxloader1");
     var tBody = tblSold2.tBodies[0];
-    clearTbody(tBody);
 
-    var xhr = new XMLHttpRequest();
+    xhr = new XMLHttpRequest();
     xhr.open("GET", "./retrieveSold2", true);
    // xhr.responseType = "json";
     xhr.onreadystatechange = function () {
@@ -270,7 +331,10 @@ function retrieveSoldData2(){
         var row;
         
         //tBody.innerHTML = "";
-        clearTbody(tBody);
+        var tBody = tblSold2.tBodies[0];
+        if(jsonArray.length > 0){
+            clearTbody(tBody);
+        }
         for(var i = 0; i < jsonArray.length; i ++){
         //var content = "<tr><td>sh600000</td><td>浦发银行</td><td>2012/07/31</td><td>6.78</td><td>1000</td><td>6.89</td><td>3.0%</td></tr>";
         //content += content;

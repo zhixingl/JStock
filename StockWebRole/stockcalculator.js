@@ -127,12 +127,12 @@ StockCalculator.prototype.BUY1 = function(myItems){
 		ma0 = this.MA0(myItems[i]);
 		ma4 = this.MA4(myItems.slice(0, i + 1));
 		//console.log('i = ' + i + ', ma0 = ' + ma0 + ', ma4 = ' + ma4);
-		if(ma0 < ma4){
-			return 50;
+		if(ma0 > ma4){
+			return 0;
 		}
 	}
 
-	return 0;
+	return 50;
 
 }
 
@@ -152,12 +152,12 @@ StockCalculator.prototype.BUY2 = function(myItems){
 		ma0 = this.MA0(myItems[i]);
 		ma4 = this.MA4(myItems.slice(0, i + 1));
 		//console.log('i = ' + i + ', ma0 = ' + ma0 + ', ma4 = ' + ma4);
-		if(ma0 < ma4){
-			return 50;
+		if(ma0 > ma4){
+			return 0;
 		}
 	}
 
-	return 0;
+	return 50;
 
 }
 
@@ -197,7 +197,7 @@ StockCalculator.prototype.SELL2 = function(myItems){
 	var ma0, ma3;
 	for(var i = length -1; i >= length - 10; i--){
 		ma0 = this.MA0(myItems[i]);
-		ma3 = this.MA3(myItems.slice(i - 14, i));
+		ma3 = this.MA3(myItems.slice(0, i+1));
 		//console.log('i = ' + i + ', ma0 = ' + ma0 + ', ma3 = ' + ma3);
 		if(ma0 < ma3){
 			return 100;
@@ -251,29 +251,36 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 	var bandwidth = 0,		//带宽 = 5条均线最大差值
 		close = 0,				//收盘价
 		preLow = 0,				//前一最小值
+		preClose =0,			//前一收盘
 		open = 0,					//当天开盘
+		low = 0,					//current low
 		maxBandwidth = 0,	//最大带宽，即5条均线的最大值
 		growth = 0,				//当天涨幅
 		volume = 0,				//当天成交量
 		prevolume = 0,		//前一日成交量
 		purevolume = 0,		//最近20日净成交量
 		closeDate = null,	//收盘日期
+		high = 0,			//当天最高
 		ma5 = 0,					//5日线价格
 		ma12 = 0,					//12日线价格
 		ma50 = 0,					//50日线价格
 		ma89 = 0,					//89日线价格
 		ma144 = 0;					//144日线价格
+
 	
 	var length = myItems.length;
 	var todayItem = myItems[length - 1];
 	var preItem = myItems[length - 2];
 	close = parseFloat(todayItem.close);
+	low = parseFloat(todayItem.low);
 	preLow = parseFloat(preItem.low);
+	preClose = parseFloat(preItem.close);
 	open = parseFloat(todayItem.open);
 	growth = (parseFloat(todayItem.close) - parseFloat(preItem.close)) / parseFloat(preItem.close);
 	volume = parseInt(todayItem.volume);
 	prevolume = parseInt(preItem.volume);		
 	closeDate = new Date(todayItem.day + '+08:00');
+	high = todayItem.high;
 	
 	var item;
 	for(var i = length-1; i >= length - 20; i--){
@@ -301,9 +308,12 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 
 	return {
 		bandwidth: bandwidth,
+		open: open,		
 		close: close,
+		high: high,		
+		low: low,
 		preLow: preLow,
-		open: open,
+		preClose: preClose,
 		maxBandwidth: maxBandwidth,
 		growth: growth,
 		volume: volume,
