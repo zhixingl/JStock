@@ -8,8 +8,9 @@ var http = require('http'),
 var StockCalculator = require('./stockcalculator.js');
 var StockDao = require('./model/stockdao.js');
 var Buyer = require('./workers/buyer');
-var Seller1 = require('./workers/seller1') ;
-var Seller2 = require('./workers/seller2');
+// var Seller1 = require('./workers/seller1') ;
+// var Seller2 = require('./workers/seller2');
+var Seller = require('./workers/seller');
 var jutils = require("./jutils.js");
 
 // var keepalive = require('./workers/keepalive.js');
@@ -31,8 +32,9 @@ module.exports.start = function(){
 	// });
 
 	var buyer = new Buyer();
-	var seller1 = new Seller1();
-	var seller2 = new Seller2();
+	// var seller1 = new Seller1();
+	// var seller2 = new Seller2();
+	var seller = new Seller();
 
 
 	// runWorkers(buyer.run, seller1.run, seller2.run);
@@ -42,9 +44,10 @@ module.exports.start = function(){
 	// setInterval(seller2.run, 10*60*1000);
 
 	// setInterval(runWorkers, 5*1000);
-	var functions = [buyer.run, seller1.run, seller2.run];
+	// var functions = [buyer.run, seller1.run, seller2.run];
+	var functions = [buyer.run, seller.run];
 	runWorkers();
-	setInterval(runWorkers, 15*60*1000);
+	setInterval(runWorkers, 10*60*1000);
 
 	function runWorkers(){
 		if(jutils.isInTradeTime(new Date())){

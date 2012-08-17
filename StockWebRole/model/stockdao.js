@@ -42,16 +42,16 @@ StockDao.prototype = {
     * @param {function(error, queryEntitiesResult, response)}   callback     The callback function.
     * @return {undefined}
     */
-    getAllItems: function (callback) {
+    getAllItems: function (callback, sortField) {
       util.log('[StockDao]: getAllItems');
       var self = this;
       var query = azure.TableQuery
           .select()
           .from(self.tableName);
           //.where('completed eq ?', 'false');
-      self.storageClient.queryEntities(query, function(error, entities){
+          self.storageClient.queryEntities(query, function(error, entities){
 
-        sortEntities(entities);
+        sortEntities(entities, sortField);
         callback(error, entities);
       });        
     },
@@ -80,6 +80,20 @@ StockDao.prototype = {
       stock.PartitionKey = self.partitionKey;
       //stock.completed = false;
       this.storageClient.insertEntity(self.tableName, stock, callback);
+    },
+
+    /**
+    * Insert a new stock item into current table
+    * @this {StockDao}
+    * @param {Object} stock     The stock object
+    * @param {function(error, entity, response)}  callback        The callback function.
+    */
+    updateItem: function (stock, callback) {
+      var self = this;
+      stock.RowKey = stock.code;
+      stock.PartitionKey = self.partitionKey;
+      //stock.completed = false;
+      this.storageClient.updateEntity(self.tableName, stock, callback);
     },
 
     /**
@@ -151,9 +165,13 @@ StockDao.prototype = {
     }
 };
 
-function sortEntities(entities){
+function sortEntities(entities, sortField){
     if(entities == undefined)
       return;
+
+    if(sortField == undefined || sortField == null){
+      sortField = 'buyDate';
+    }
     var length = entities.length;
     var currEntity = null;
     var nextEntity = null;
@@ -163,7 +181,7 @@ function sortEntities(entities){
       for(var j = i + 1; j < length; j++){
         currEntity = entities[i];
         nextEntity = entities[j];
-        if(currEntity.buyDate > nextEntity.buyDate){
+        if(currEntity[sortField] > nextEntity[sortField]){
           //console.log('start swap!')
           tempEntity = currEntity;
           entities[i] = nextEntity

@@ -53,7 +53,8 @@ module.exports.isStockClosed = function(closeDate){
 	// return false;
 };
 
-module.exports.sortEntities = function(entities){
+
+module.exports.sortEntities = function(entities, propName){
     if(entities == undefined)
       return;
     var length = entities.length;
@@ -65,7 +66,7 @@ module.exports.sortEntities = function(entities){
       for(var j = i + 1; j < length; j++){
         currEntity = entities[i];
         nextEntity = entities[j];
-        if(currEntity.buyDate > nextEntity.buyDate){
+        if(currEntity[propName] > nextEntity[propName]){
           //console.log('start swap!')
           tempEntity = currEntity;
           entities[i] = nextEntity
@@ -123,6 +124,28 @@ module.exports.min = function(array, propName){
 		}
 
 		return array[resultCount];
+
+	}
+
+};
+
+
+/**
+* Get the last n elements from the array with propName
+*/
+module.exports.getNumberArray = function(array, propName, n){
+
+	if(typeof(array[0]) == "number"){
+		return array.slice(-n);
+	}else{
+		var tempArray = array.slice(-n);
+		var resultArray = new Array();
+		for(i = 0; i < n; i ++){
+			resultArray.push(array[i][propName]);
+			
+		}
+
+		return resultArray;
 
 	}
 

@@ -27,13 +27,14 @@ module.exports = function(){
 
 	this.getAllItems = function(){
 		buyStockDao.getAllItems(function(error, entities){
-			//eyes.inspect(error);
+			eyes.inspect(error);
 			//eyes.inspect(entities);
-			entities.forEach(function(item){
-				
-				console.log(item.code + ', ' + item.tunePrice);
+			buyStockDao.retrieveExtraData(entities, function(){
+				entities.forEach(function(item){
+					console.log(item.code + ', ' + item.currPrice + ',' + item.tunePrice);
+				});
 			});
-		})
+		});
 	};
 
 	this.getItem = function(){
@@ -57,7 +58,7 @@ module.exports = function(){
 	};
 
 	this.deleteAll = function(callback){
-		buyStockDao.deleteAll('BuyStocks', callback);
+		// buyStockDao.deleteAll('BuyStocks', callback);
 		buyStockDao.deleteAll('SellStocks1', callback);
 		buyStockDao.deleteAll('SellStocks2', callback);
 	};

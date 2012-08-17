@@ -165,7 +165,7 @@ module.exports = function(app)
                     }
                 );
             }            
-        });
+        }, 'sellDate');
     });  
 
     //ping page

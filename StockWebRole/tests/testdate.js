@@ -13,3 +13,6 @@ var day2 = new Date('2012-08-01 00:20:00+08:00');
 console.log(day2.getUTCHours());
 
 console.log(jutils.compareDays(day, day2));
+
+var day3 = new Date(Date.now());
+console.log(day3);

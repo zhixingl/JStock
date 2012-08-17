@@ -32,6 +32,8 @@ window.onload=function() {
 
     tabs[0].dispatchEvent(evt);
 
+
+
 }
 
 var myTimeInterval = 0;
@@ -60,7 +62,17 @@ function displayPage() {
     }
 
     functions[i].call();
+
     myTimeInterval = setInterval(functions[i], 60000);
+    if('hidden' in document){//HTML5 supported
+        document.addEventListener('visibilitychange', function(){
+            if(document.hidden){
+                clearInterval(myTimeInterval);
+            }else{
+                myTimeInterval = setInterval(functions[i], 60000);
+            }        
+        });
+    }
 
 }
 
@@ -139,6 +151,7 @@ function retrieveBoughtData(){
 
             row.insertCell(-1).innerText = item.buyPrice;
             row.insertCell(-1).innerText = item.buyVolume;
+            row.insertCell(-1).innerText = item.tunePrice;
             row.style.background = "#ff9999";
 
 /*            row.insertCell(-1).innerText = item.currPrice;
@@ -212,7 +225,6 @@ function retrieveExtraBuyData(tBody, codeArray){
                 item = jsonArray[i];
                 row = rows[i];
                 row.insertCell(-1).innerText = item.currPrice;
-                row.insertCell(-1).innerText = item.tunePrice;
                 var profit = ((item.currPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2);
                 row.insertCell(-1).innerText = profit + "%";
 
@@ -287,7 +299,14 @@ function retrieveSoldData1(){
             row.insertCell(-1).innerText = item.sellVolume ;
 
             row.insertCell(-1).innerText = item.currPrice;
-            row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
+            
+            var profit = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2);
+            row.insertCell(-1).innerText = profit + "%";
+            if(profit > 0){
+                row.style.background = "#ff9999";
+            }else{
+                row.style.background = "#99FF99";
+            }
 
             row.firstChild.setAttribute("code", item.code);
 
@@ -365,7 +384,15 @@ function retrieveSoldData2(){
             row.insertCell(-1).innerText = item.sellVolume ;
 
             row.insertCell(-1).innerText = item.currPrice;
-            row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
+            // row.insertCell(-1).innerText = ((item.sellPrice - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2) + "%";
+
+            var profit = ((item.sellPriceAvg - item.buyPrice) * 100 / item.buyPrice - 0.3).toFixed(2);
+            row.insertCell(-1).innerText = profit + "%";
+            if(profit > 0){
+                row.style.background = "#ff9999";
+            }else{
+                row.style.background = "#99FF99";
+            }
 
 
             row.firstChild.setAttribute("code", item.code);

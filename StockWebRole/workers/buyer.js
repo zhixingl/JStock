@@ -150,25 +150,34 @@ function sendBuyRequest(code, url, callback){
 									return;
 								}
 
-
-
+								
+								var ema8 = calculator.EMA(8);
 								//If meets the below 3 conditions, buy it
 								var condition1 = (band.ma50 > band.ma144)	
 												&& (band.bandwidth < (band.close - band.preLow))
-												&& (band.bandwidth / band.close <= 0.02)
+												&& (band.bandwidth / band.close < 0.02)
 												&& (band.close > band.open)
 												&& (band.close > band.maxBandwidth)
-												&& ((band.close - band.maxBandwidth) / band.close < 0.02)
+												&& ((band.close - band.minBandwidth) / band.close < 0.02)
 												&& (band.growth < 0.02)
 												&& ((Math.min(band.ma5, band.ma12) - Math.max(band.ma50, band.ma89, band.ma144)) / band.close < 0.007)
 												&& ((band.high - band.close) < (band.close - band.open))
-												&& (band.close - band.low) > (band.preClose - band.preLow);
+												&& (band.close - band.low) > (band.preClose - band.preLow)
+												&& (band.close >= ema8) && ((band.close - band.preLow) * 100 > band.close) &&  (band.bandwidth/(band.close - band.preLow) < 1)
+												&& ((band.llvl8 - (band.maxBandwidth + band.minBandwidth) / 2) * 100 / band.close > -1.8);
 								var condition2 = (band.volume / band.prevolume) >= 1.4;
 								// var condition3 = band.purevolume > 0;
 								var condition3 = true;
 								//eyes.inspect([condition1, condition2, condition3]);
 								if(condition1 && condition2 && condition3){
+									util.log('This stock will be bought: ema8=' + ema8);
+									console.log(band);
+									var newItems = items.slice(-24);	//latest 24 values
+									var maxVal = jutils.max(newItems, 'high').high;
+									var minVal = jutils.min(newItems, 'low').low;
+									tunePrice = ((maxVal - minVal) * 25 / newItems[23].close).toFixed(2);
 									buyStock({
+										tunePrice: tunePrice,
 										code: code,
 										buyDate: Date.now(),
 										buyPrice: band.close.toFixed(2),

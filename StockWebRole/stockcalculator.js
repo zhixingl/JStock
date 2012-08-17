@@ -1,3 +1,4 @@
+var jutils = require('./jutils.js');
 module.exports = StockCalculator;
 
 /**
@@ -241,6 +242,8 @@ StockCalculator.prototype.LLV = function(values, n){
 	return result;
 }
 
+
+
 StockCalculator.prototype.getBandWidth = function(myItems){
 	var self = this;
 	if(!myItems){
@@ -255,12 +258,14 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 		open = 0,					//当天开盘
 		low = 0,					//current low
 		maxBandwidth = 0,	//最大带宽，即5条均线的最大值
+		minBandwidth = 0,	//最小带宽，即5条均线的最小值
 		growth = 0,				//当天涨幅
 		volume = 0,				//当天成交量
 		prevolume = 0,		//前一日成交量
 		purevolume = 0,		//最近20日净成交量
 		closeDate = null,	//收盘日期
 		high = 0,			//当天最高
+		llvl8 = 0, 			//前8天最低值的最小值
 		ma5 = 0,					//5日线价格
 		ma12 = 0,					//12日线价格
 		ma50 = 0,					//50日线价格
@@ -299,12 +304,14 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 	ma89 = self.EMA(89);
 	ma144 = self.EMA(144);
 
+	llvl8 = self.LLV(jutils.getNumberArray(myItems, 'low', 8), 8);
+
 	//debugger;
 	var max = Math.max(ma5, ma12, ma50, ma89, ma144);
 	var min = Math.min(ma5, ma12, ma50, ma89, ma144);
 	bandwidth = max - min;
 	maxBandwidth = max;
-
+	minBandwidth = min;
 
 	return {
 		bandwidth: bandwidth,
@@ -315,11 +322,13 @@ StockCalculator.prototype.getBandWidth = function(myItems){
 		preLow: preLow,
 		preClose: preClose,
 		maxBandwidth: maxBandwidth,
+		minBandwidth: minBandwidth,
 		growth: growth,
 		volume: volume,
 		prevolume: prevolume,
 		purevolume: purevolume,
 		closeDate: closeDate,
+		llvl8: llvl8,
 		ma5: ma5,
 		ma12: ma12,
 		ma50: ma50,

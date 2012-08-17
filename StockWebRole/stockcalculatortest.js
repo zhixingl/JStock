@@ -8,9 +8,10 @@ var StockDao = require('./model/stockdao.js');
 
 var urlTemplate = 'http://money.finance.sina.com.cn/quotes_service/api/xml.php/CN_MarketData.getKLineData?symbol=%s&scale=30&datalen=196';
 var code = 'sh600518';
+var code = 'sh600425';
 var url = util.format(urlTemplate, code);
-test1();
-// test2();
+// test1();
+test2();
 
 function test1(){
 	var buyTableName = 'BuyStocks';
@@ -100,7 +101,7 @@ function test2(){
 						
 						var calculator = new StockCalculator(items);
 
-	/*					console.log("get the EMA values");
+					console.log("get the EMA values: " + items.length);
 						debugger;
 						// var value = calculator.EMA(5);
 						eyes.inspect(calculator.EMA(5));
@@ -108,7 +109,7 @@ function test2(){
 						eyes.inspect(calculator.EMA(50));
 						eyes.inspect(calculator.EMA(89));
 						eyes.inspect(calculator.EMA(144));
-						
+			/*				
 						console.log("get the MA0 values");
 						
 						eyes.inspect(calculator.MA0(items[length - 1]));
