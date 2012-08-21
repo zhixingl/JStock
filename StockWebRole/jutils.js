@@ -47,6 +47,10 @@ module.exports.isStockClosed = function(closeDate){
 		if(closeDate.getUTCHours() == 7){
 			needPrompt = false;
 		}
+	}else if(reduction == -3 && closeDate.getDay() == 5){//last Friday
+		if(closeDate.getUTCHours() == 7){
+			needPrompt = false;
+		}
 	}
 	
 	return needPrompt;

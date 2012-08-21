@@ -132,6 +132,7 @@ function sendBuyRequest(code, url, callback){
 					var parser = new xml2js.Parser();
 					parser.on('end', function(result) {
 							var items = result.item;
+							// items.splice(items.length -1, 1);
 							if(items != undefined && items.length >= 144){
 								var calculator = new StockCalculator(items);
 								//calculate the bandwidth
@@ -164,7 +165,23 @@ function sendBuyRequest(code, url, callback){
 												&& ((band.high - band.close) < (band.close - band.open))
 												&& (band.close - band.low) > (band.preClose - band.preLow)
 												&& (band.close >= ema8) && ((band.close - band.preLow) * 100 > band.close) &&  (band.bandwidth/(band.close - band.preLow) < 1)
-												&& ((band.llvl8 - (band.maxBandwidth + band.minBandwidth) / 2) * 100 / band.close > -1.8);
+												&& ((band.llvl8 - (band.maxBandwidth + band.minBandwidth) / 2) * 100 / band.close > -1.8)
+												&& (band.ema5 > band.ema12) && (band.ema5 > band.minBandwidth);
+
+/*								console.log(band.ma50 > band.ma144)	;
+								console.log(band.bandwidth < (band.close - band.preLow));
+								console.log(band.bandwidth / band.close < 0.02);
+								console.log(band.close > band.open);
+								console.log(band.close > band.maxBandwidth);
+								console.log((band.close - band.minBandwidth) / band.close < 0.02);
+								console.log(band.growth < 0.02);
+								console.log((Math.min(band.ma5, band.ma12) - Math.max(band.ma50, band.ma89, band.ma144)) / band.close < 0.007);
+								console.log((band.high - band.close) < (band.close - band.open));
+								console.log((band.close - band.low) > (band.preClose - band.preLow));
+								console.log(band.close >= ema8) && ((band.close - band.preLow) * 100 > band.close) &&  (band.bandwidth/(band.close - band.preLow) < 1);
+								console.log((band.llvl8 - (band.maxBandwidth + band.minBandwidth) / 2) * 100 / band.close > -1.8);
+								console.log((band.ema5 > band.ema12) && (band.ema5 > band.minBandwidth));
+*/
 								var condition2 = (band.volume / band.prevolume) >= 1.4;
 								// var condition3 = band.purevolume > 0;
 								var condition3 = true;

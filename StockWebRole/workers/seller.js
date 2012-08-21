@@ -156,7 +156,8 @@ function sellStock(buyStockDao, sellStockDao, stock){
 				}
 			});
 		}else{
-			stock.sellVolume += entity.sellVolume;
+			stock.sellVolume = parseInt(stock.sellVolume) + parseInt(entity.sellVolume);
+			stock.buyPrice = (parseFloat(stock.buyPrice) + parseFloat(entity.buyPrice))/2;
 			stock.sellPriceAvg = (stock.sellPriceAvg + entity.sellPriceAvg)/2;
 			sellStockDao.updateItem(stock,function(error){
 				if(error){	//Has never been sold before

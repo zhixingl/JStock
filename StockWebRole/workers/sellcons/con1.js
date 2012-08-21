@@ -12,6 +12,6 @@ module.exports = function(items, stock, realPrice, params){
 	var c = todayItem.close;
 	var l = todayItem.low;
 
-	return ((h - refC1) / refC1 > 0.04) && ((h - c) > 0.333 * (h - l));
+	return ((h - refC1) / refC1 > 0.04) && ((h - c) > (0.333 * (h - l)));
 
 }

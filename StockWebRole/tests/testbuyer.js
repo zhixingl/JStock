@@ -12,11 +12,11 @@ agent.on('connect', function() {
 var urlTemplate = 'http://money.finance.sina.com.cn/quotes_service/api/xml.php/CN_MarketData.getKLineData?symbol=%s&scale=30&datalen=196';
 var buyer = new Buyer();
 
-var code = 'sz002049';
+var code = 'sz002270';
 var url = util.format(urlTemplate, code);
 
 buyer.sendBuyOneRequest(code, url, function(band){
-	// console.log(band);
+	console.log(band);
 });
 
 

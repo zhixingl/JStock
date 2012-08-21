@@ -6,6 +6,7 @@ console.log('getUTCDay: ' + day.getUTCDay());
 console.log('getUTCHours: ' + day.getUTCHours());
 console.log('getUTCMinutes: ' + day.getUTCMinutes());
 console.log('getUTCSeconds: ' + day.getUTCSeconds());
+console.log('getDay: ' + day.getDay());
 
 var str = '2010-01-11 14:00:00';
 // str.replace
