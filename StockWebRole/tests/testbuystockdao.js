@@ -59,7 +59,7 @@ module.exports = function(){
 
 	this.deleteAll = function(callback){
 		// buyStockDao.deleteAll('BuyStocks', callback);
-		buyStockDao.deleteAll('SellStocks1', callback);
+		// buyStockDao.deleteAll('SellStocks1', callback);
 		buyStockDao.deleteAll('SellStocks2', callback);
 	};
 

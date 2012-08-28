@@ -50,7 +50,6 @@ StockDao.prototype = {
           .from(self.tableName);
           //.where('completed eq ?', 'false');
           self.storageClient.queryEntities(query, function(error, entities){
-
         sortEntities(entities, sortField);
         callback(error, entities);
       });        

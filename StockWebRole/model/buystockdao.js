@@ -18,7 +18,7 @@ BuyStockDao.prototype = new StockDao();
 BuyStockDao.prototype.constructor = BuyStockDao;
 
 BuyStockDao.prototype.getAllItems = function (callback) {
-	util.log('[BuyStockDao]: getAllItems');
+	// util.log('[BuyStockDao]: getAllItems');
 	var self = this;
 	var query = azure.TableQuery
 	    .select('code,buyDate,buyPrice,buyVolume,tunePrice')
@@ -37,7 +37,7 @@ BuyStockDao.prototype.retrieveExtraData = function(entities, callback){
 		    //set the real price
 		    async.forEach(entities
 	           , function(entity, callback1){
-	               entity.name = entity.code;
+	               //entity.name = entity.code;
 	               //now get the current price
 	               var realUrl = 'http://hq.sinajs.cn/?list=' + entity.code;
 	               http.get(realUrl, function(response) {
@@ -69,7 +69,7 @@ BuyStockDao.prototype.retrieveExtraData = function(entities, callback){
 	        );
 };
 
-function retrieveOneTunePrice(entity,callback){
+/*function retrieveOneTunePrice(entity,callback){
 	// callback(null, entities);
 	var urlTemplate = 'http://money.finance.sina.com.cn/quotes_service/api/xml.php/CN_MarketData.getKLineData?symbol=%s&scale=30&datalen=24';
 	
@@ -150,6 +150,6 @@ function retrieveTunePrice(entities,callback){
 
     );
 
-}
+}*/
 
 
